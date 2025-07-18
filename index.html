@@ -8,48 +8,393 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://unpkg.com/docx@8.5.0/build/index.js"></script>
     <style>
-        /* CSS has been slightly adjusted for the new UI elements, but is largely the same */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #3b4371 100%); color: #fff; min-height: 100vh; overflow-x: hidden; }
-        .container { max-width: 1600px; margin: 0 auto; padding: 20px; }
-        .header { text-align: center; padding: 40px 0; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border-radius: 25px; margin-bottom: 30px; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); }
-        h1 { font-size: 3rem; margin-bottom: 10px; background: linear-gradient(45deg, #ffd700, #ffb347, #ff6b6b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 0 30px rgba(255, 215, 0, 0.5); }
-        .nav-tabs { display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; justify-content: center; }
-        .nav-tab { padding: 15px 30px; border: none; border-radius: 25px; background: rgba(255, 255, 255, 0.1); color: #fff; cursor: pointer; transition: all 0.3s ease; backdrop-filter: blur(10px); font-size: 1rem; font-weight: 600; }
-        .nav-tab.active { background: linear-gradient(45deg, #ffd700, #ffb347); color: #000; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(255, 215, 0, 0.3); }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .input-section { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border-radius: 20px; padding: 30px; margin-bottom: 30px; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); }
-        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .input-group { display: flex; flex-direction: column; gap: 8px; }
-        .input-group label { font-weight: 600; color: #ffd700; font-size: 1.1rem; }
-        .input-group input, .input-group select { padding: 12px 16px; border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 10px; background: rgba(255, 255, 255, 0.1); color: #fff; font-size: 1rem; }
-        .generate-btn { padding: 15px 40px; border: none; border-radius: 25px; background: linear-gradient(45deg, #ffd700, #ffb347); color: #000; font-weight: bold; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; font-size: 1.1rem; }
-        .loading { display: none; text-align: center; padding: 40px; }
-        .spinner { border: 4px solid rgba(255, 255, 255, 0.3); border-top: 4px solid #ffd700; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .error-message { display: none; background: rgba(255, 0, 0, 0.2); border: 2px solid rgba(255, 0, 0, 0.5); border-radius: 10px; padding: 15px; margin-bottom: 20px; text-align: center; }
-        .results-section { background: rgba(0,0,0,0.2); border-radius: 20px; padding: 30px; display: none; }
-        .results-section h2 { color: #ffd700; text-align: center; font-size: 2rem; margin-bottom: 20px;}
-        .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
-        .result-card { background: rgba(255,255,255,0.05); padding: 25px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2); }
-        .result-card h3 { color: #ffb347; border-bottom: 1px solid #ffb347; padding-bottom: 10px; margin-bottom: 15px; }
-        .report-section { text-align: center; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border-radius: 20px; padding: 30px; margin-bottom: 30px; }
-        .export-btn { padding: 12px 24px; border: none; border-radius: 25px; background: linear-gradient(45deg, #28a745, #20c997); color: #fff; font-weight: bold; cursor: pointer; }
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #3b4371 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px; /* Slightly reduced for better focus on content */
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header Section */
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ffd700, #ffb347, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .nav-tab {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .nav-tab.active {
+            background: linear-gradient(45deg, #ffd700, #ffb347);
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 215, 0, 0.3);
+        }
+        
+        .nav-tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Input Section */
+        .input-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .input-section h2 {
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 2rem;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Adjusted for more columns */
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .input-group label {
+            font-weight: 600;
+            color: #ffd700;
+            font-size: 1.1rem;
+        }
+        
+        .input-group input,
+        .input-group select {
+            padding: 12px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+        
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .generate-btn {
+            display: block; /* Make button full width for better clickability */
+            width: fit-content;
+            margin: 0 auto; /* Center the button */
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(45deg, #ffd700, #ffb347);
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 215, 0, 0.5);
+        }
+        
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* Loading Spinner */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #ffd700;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Error Message */
+        .error-message {
+            display: none;
+            background: rgba(255, 0, 0, 0.2);
+            border: 2px solid rgba(255, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #ff6b6b;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        /* Results Section (In-App Display) */
+        .results-section {
+            display: none; /* Initially hidden */
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .results-section h2 {
+            color: #ffd700;
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 25px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .results-section .report-summary {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            margin-bottom: 30px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .report-section-container {
+            display: grid;
+            grid-template-columns: 1fr; /* Default to single column */
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        .report-section-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease;
+        }
+
+        .report-section-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .report-section-card h3 {
+            color: #ffb347;
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 179, 71, 0.3);
+            padding-bottom: 10px;
+        }
+        
+        .report-section-card h4 {
+            color: #ffd700;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .report-section-card p {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .report-section-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .report-section-card ul li {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 15px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+            border-left: 3px solid #ffb347;
+        }
+        .report-section-card ul li strong {
+            color: #ffd700;
+        }
+
+        /* Export Reports Tab */
+        .report-section {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .export-controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .export-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            box-shadow: 0 5px 10px rgba(40, 167, 69, 0.3);
+        }
+        
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
+        }
+
+        #reportStatus {
+            margin-top: 20px;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        /* Media Queries for Responsiveness */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+            .results-section h2 {
+                font-size: 1.8rem;
+            }
+            .report-section-card h3 {
+                font-size: 1.4rem;
+            }
+            .nav-tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Hidden SVG Logo for exports -->
     <div id="logo-container" style="display: none;">
         <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"></path><path d="M12 12l-8 4.5"></path><path d="M12 12l8 4.5"></path><path d="M12 12l-8-4.5"></path><path d="M12 12l8-4.5"></path>
+            <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"></path>
+            <path d="M12 12l-8 4.5"></path><path d="M12 12l8 4.5"></path>
+            <path d="M12 12l-8-4.5"></path><path d="M12 12l8-4.5"></path>
             <path d="M12 12l0 9"></path><path d="M12 12l0-9"></path>
         </svg>
     </div>
 
     <div class="container">
         <div class="header">
-            <h1>Advanced AI Analysis</h1>
-            <p>Astrology & Numerology Professional Suite</p>
+            <h1>🌟 Advanced AI Cosmic Analysis 🌟</h1>
+            <p>Unveiling Your Deepest Insights Through Astrology & Numerology</p>
         </div>
         
         <div class="nav-tabs">
@@ -60,39 +405,67 @@
 
         <div id="errorMessage" class="error-message"></div>
         
+        <!-- Astrology Tab -->
         <div id="astrology" class="tab-content active">
             <div class="input-section">
-                <h2>Generate Astrological Profile</h2>
+                <h2>Generate Your Astrological Profile</h2>
                 <div class="input-grid">
-                    <div class="input-group"><label for="fullName">Full Name</label><input type="text" id="fullName" value="Jane Doe"></div>
-                    <div class="input-group"><label for="birthDate">Birth Date</label><input type="date" id="birthDate" value="1990-07-15"></div>
-                    <div class="input-group"><label for="birthTime">Birth Time</label><input type="time" id="birthTime" value="14:30"></div>
-                    <div class="input-group"><label for="birthLocation">Birth Location</label><input type="text" id="birthLocation" placeholder="City, Country" value="New York, USA"></div>
+                    <div class="input-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" placeholder="e.g., Jane Doe" value="Jane Doe">
+                    </div>
+                    <div class="input-group">
+                        <label for="birthDate">Birth Date</label>
+                        <input type="date" id="birthDate" value="1990-07-15">
+                    </div>
+                    <div class="input-group">
+                        <label for="birthTime">Birth Time (HH:MM)</label>
+                        <input type="time" id="birthTime" value="14:30">
+                    </div>
+                    <div class="input-group">
+                        <label for="birthLocation">Birth Location (City, Country)</label>
+                        <input type="text" id="birthLocation" placeholder="e.g., New York, USA" value="New York, USA">
+                    </div>
+                    <div class="input-group">
+                        <label for="timezoneOffset">Timezone Offset from UTC (e.g., -5 for EST)</label>
+                        <input type="number" id="timezoneOffset" placeholder="e.g., -5" value="-5">
+                    </div>
                 </div>
-                <button class="generate-btn" onclick="generateAstrologyReport()">🔮 Generate Astrology Report</button>
+                <button class="generate-btn" onclick="generateAstrologyReport()">🔮 Generate Deep Astrology Report</button>
             </div>
-            <div class="loading" id="astrologyLoading"><div class="spinner"></div><p>AI is analyzing cosmic patterns...</p></div>
+            <div class="loading" id="astrologyLoading"><div class="spinner"></div><p>AI analyzing over 10,000 cosmic data points...</p></div>
             <div class="results-section" id="astrologyResults"></div>
         </div>
         
+        <!-- Numerology Tab -->
         <div id="numerology" class="tab-content">
             <div class="input-section">
-                <h2>Generate Numerology Profile</h2>
+                <h2>Generate Your Numerology Profile</h2>
                 <div class="input-grid">
-                    <div class="input-group"><label for="numFullName">Full Birth Name</label><input type="text" id="numFullName" value="Jane Elizabeth Doe"></div>
-                    <div class="input-group"><label for="numCurrentName">Current Name (if different)</label><input type="text" id="numCurrentName" placeholder="e.g., Jane Smith"></div>
-                    <div class="input-group"><label for="numBirthDate">Birth Date</label><input type="date" id="numBirthDate" value="1990-07-15"></div>
+                    <div class="input-group">
+                        <label for="numFullName">Full Birth Name (as on birth certificate)</label>
+                        <input type="text" id="numFullName" placeholder="e.g., Jane Elizabeth Doe" value="Jane Elizabeth Doe">
+                    </div>
+                    <div class="input-group">
+                        <label for="numCurrentName">Current Full Name (if different)</label>
+                        <input type="text" id="numCurrentName" placeholder="e.g., Jane Smith" value="Jane Smith">
+                    </div>
+                    <div class="input-group">
+                        <label for="numBirthDate">Birth Date</label>
+                        <input type="date" id="numBirthDate" value="1990-07-15">
+                    </div>
                 </div>
-                <button class="generate-btn" onclick="generateNumerologyReport()">🔮 Generate Numerology Report</button>
+                <button class="generate-btn" onclick="generateNumerologyReport()">🔮 Generate Deep Numerology Report</button>
             </div>
-            <div class="loading" id="numerologyLoading"><div class="spinner"></div><p>AI is calculating vibrational data...</p></div>
+            <div class="loading" id="numerologyLoading"><div class="spinner"></div><p>AI processing vibrational frequencies...</p></div>
             <div class="results-section" id="numerologyResults"></div>
         </div>
 
+        <!-- Reports Tab -->
         <div id="reports" class="tab-content">
             <div class="report-section">
                 <h2>Download Your Professional Reports</h2>
-                <p>Generate reports on the other tabs first. Then, export them here.</p>
+                <p>Ensure you have generated your Astrology and/or Numerology reports on their respective tabs. Once generated, you can download a comprehensive, professionally formatted PDF or DOCX file containing your insights.</p>
                 <div class="export-controls">
                     <button class="export-btn" onclick="exportPDF()">📄 Export as PDF</button>
                     <button class="export-btn" onclick="exportDOCX()">📝 Export as DOCX</button>
@@ -103,195 +476,812 @@
     </div>
 
     <script>
-        // --- GLOBAL STATE & "AI" CONTENT LIBRARY (ABBREVIATED FOR BREVITY) --- //
+        // --- GLOBAL STATE & "AI" CONTENT LIBRARY (EXTENSIVELY EXPANDED) --- //
         let generatedReportData = {};
 
+        // Comprehensive content library for "AI" generated analysis
         const ANALYSIS_CONTENT = {
-            zodiac: {
-                Aries: "Aries represents initiation, courage, and directness...", Leo: "Leo is the sign of royalty, creativity, and performance...", Cancer: "Cancer governs the realm of emotions, home, and nurturing...",
-                // ... All 12 signs needed for full functionality
+            zodiacSigns: {
+                Aries: {
+                    element: "Fire", modality: "Cardinal", rulingPlanet: "Mars",
+                    summary: "The pioneer, dynamic, and assertive. Driven by instinct and a need for action, often takes the lead.",
+                    strengths: "Courageous, enthusiastic, confident, direct.",
+                    challenges: "Impulsive, impatient, self-centered, quick-tempered."
+                },
+                Taurus: {
+                    element: "Earth", modality: "Fixed", rulingPlanet: "Venus",
+                    summary: "The builder, stable, and sensual. Seeks comfort, security, and appreciates beauty. Persistent and reliable.",
+                    strengths: "Patient, reliable, devoted, practical.",
+                    challenges: "Stubborn, possessive, uncompromising, materialistic."
+                },
+                Gemini: {
+                    element: "Air", modality: "Mutable", rulingPlanet: "Mercury",
+                    summary: "The communicator, curious, and adaptable. Witty and intellectual, thrives on information and variety.",
+                    strengths: "Adaptable, intelligent, communicative, curious.",
+                    challenges: "Inconsistent, indecisive, superficial, nervous."
+                },
+                Cancer: {
+                    element: "Water", modality: "Cardinal", rulingPlanet: "Moon",
+                    summary: "The nurturer, emotional, and protective. Deeply intuitive, values home and family, empathetic.",
+                    strengths: "Intuitive, emotional, nurturing, sympathetic.",
+                    challenges: "Moody, manipulative, insecure, clinging."
+                },
+                Leo: {
+                    element: "Fire", modality: "Fixed", rulingPlanet: "Sun",
+                    summary: "The performer, generous, and charismatic. Loves to be the center of attention, natural leader.",
+                    strengths: "Generous, warm-hearted, creative, enthusiastic.",
+                    challenges: "Arrogant, stubborn, self-centered, inflexible."
+                },
+                Virgo: {
+                    element: "Earth", modality: "Mutable", rulingPlanet: "Mercury",
+                    summary: "The analyst, practical, and service-oriented. Meticulous, diligent, and seeks perfection.",
+                    strengths: "Loyal, analytical, kind, hardworking, practical.",
+                    challenges: "Shy, overly critical, worried, all work and no play."
+                },
+                Libra: {
+                    element: "Air", modality: "Cardinal", rulingPlanet: "Venus",
+                    summary: "The balancer, harmonious, and diplomatic. Seeks justice, beauty, and partnership. Gracious and fair-minded.",
+                    strengths: "Diplomatic, fair-minded, social, charming.",
+                    challenges: "Indecisive, avoids confrontation, self-pitying."
+                },
+                Scorpio: {
+                    element: "Water", modality: "Fixed", rulingPlanet: "Pluto, Mars",
+                    summary: "The intense, mysterious, and transformative. Deeply emotional, perceptive, and powerful. Resourceful.",
+                    strengths: "Resourceful, brave, passionate, a true friend.",
+                    challenges: "Jealous, secretive, resentful, manipulative."
+                },
+                Sagittarius: {
+                    element: "Fire", modality: "Mutable", rulingPlanet: "Jupiter",
+                    summary: "The explorer, optimistic, and philosophical. Loves freedom, adventure, and learning. Honest and straightforward.",
+                    strengths: "Generous, idealistic, great sense of humor.",
+                    challenges: "Impatient, promises more than can deliver, tactless."
+                },
+                Capricorn: {
+                    element: "Earth", modality: "Cardinal", rulingPlanet: "Saturn",
+                    summary: "The achiever, disciplined, and responsible. Ambitious, practical, and grounded. Seeks long-term success.",
+                    strengths: "Responsible, disciplined, self-control, good managers.",
+                    challenges: "Know-it-all, unforgiving, condescending."
+                },
+                Aquarius: {
+                    element: "Air", modality: "Fixed", rulingPlanet: "Uranus, Saturn",
+                    summary: "The innovator, independent, and humanitarian. Original and progressive, values freedom and social justice.",
+                    strengths: "Progressive, original, independent, humanitarian.",
+                    challenges: "Runs from emotional expression, temperamental, uncompromising."
+                },
+                Pisces: {
+                    element: "Water", modality: "Mutable", rulingPlanet: "Neptune, Jupiter",
+                    summary: "The dreamer, compassionate, and intuitive. Empathetic, artistic, and deeply spiritual. Escapist tendencies.",
+                    strengths: "Compassionate, artistic, intuitive, gentle.",
+                    challenges: "Fearful, overly trusting, sad, desire to escape reality."
+                }
             },
-            planets: {
-                Sun: "The Sun represents your core identity, ego, and life force...", Moon: "The Moon governs your emotional world, instincts, and subconscious...",
-                // ... Mercury, Venus, Mars etc.
+            planetsInHouses: {
+                Sun: {
+                    "House 1": "Sun in 1st House indicates a strong, dominant personality with a natural need to express individuality. You are often seen as confident and self-assured.",
+                    "House 10": "Sun in 10th House points to a drive for public recognition and career success. Your identity is often tied to your professional achievements and standing in the community.",
+                    // ... (Add all 12 houses for Sun and other planets)
+                },
+                Moon: {
+                    "House 4": "Moon in 4th House signifies a deep emotional connection to home, family, and roots. You find security in your private life and tend to be nurturing.",
+                    "House 7": "Moon in 7th House suggests emotional needs are met through partnerships. You seek harmony in relationships and may be emotionally dependent on others.",
+                    // ... (Add more)
+                },
+                Mercury: {
+                    "House 3": "Mercury in 3rd House indicates a natural affinity for communication, learning, and local environments. You are quick-witted and enjoy sharing ideas.",
+                    // ...
+                },
+                Venus: {
+                    "House 2": "Venus in 2nd House suggests that values and pleasure are tied to material security and possessions. You enjoy comforts and beautiful things.",
+                    // ...
+                },
+                Mars: {
+                    "House 1": "Mars in 1st House gives a very energetic, assertive, and direct personality. You act on impulses and possess strong willpower.",
+                    // ...
+                },
+                Jupiter: {
+                    "House 10": "Jupiter in 10th House is excellent for career and public image, indicating opportunities for growth, success, and good reputation in your professional life.",
+                    // ...
+                },
+                Saturn: {
+                    "House 7": "Saturn in 7th House brings seriousness and responsibility to partnerships. You may experience delays or lessons in relationships but seek stable, long-term commitments.",
+                    // ...
+                },
+                Uranus: {
+                    "House 11": "Uranus in 11th House denotes unconventional friendships and a need for freedom within social groups. You are drawn to unique causes and future-oriented visions.",
+                    // ...
+                },
+                Neptune: {
+                    "House 12": "Neptune in 12th House highlights a deeply sensitive and spiritual nature, often with a connection to hidden realms, dreams, and self-undoing. Compassion is key.",
+                    // ...
+                },
+                Pluto: {
+                    "House 8": "Pluto in 8th House indicates powerful transformations in areas of shared resources, intimacy, and profound psychological change. You delve deep into life's mysteries.",
+                    // ...
+                }
             },
             aspects: {
-                "Sun square Saturn": "A challenging aspect (square) between your ego (Sun) and your sense of discipline (Saturn) indicates a core life lesson around self-worth. You may struggle with harsh self-criticism, but have the potential to build incredible inner strength and authority.",
-                "Venus trine Jupiter": "A harmonious aspect (trine) between Venus (love, values) and Jupiter (expansion, luck) blesses you with social grace and optimism in relationships. You attract generosity from others and have a deep appreciation for beauty and culture.",
-                 // ... More aspects
+                "Sun_Square_Saturn": "Sun Square Saturn: This challenging aspect creates a tension between your ego and self-expression (Sun) and your sense of responsibility, limitations, and discipline (Saturn). You may feel inhibited or overly critical of yourself, leading to feelings of inadequacy. However, this aspect also imbues you with incredible resilience, determination, and the capacity to achieve great things through sustained effort and perseverance.",
+                "Venus_Trine_Jupiter": "Venus Trine Jupiter: A highly fortunate and harmonious aspect between the planet of love, beauty, and values (Venus) and the planet of expansion, luck, and abundance (Jupiter). This indicates a natural magnetism, social grace, and an optimistic outlook on relationships. You likely attract good fortune and benevolent people into your life, finding joy and ease in social interactions and creative pursuits.",
+                "Mars_Conjunction_Pluto": "Mars Conjunction Pluto: This powerful conjunction brings an intense, even compulsive, drive to your actions. Your willpower is immense, and you are capable of radical transformation and wielding significant influence. However, it also suggests potential for power struggles or an aggressive streak if not consciously channeled.",
+                // ... (Add more common aspects)
             },
-            numerology: {
-                lifePath: { 1: "A path of leadership...", 8: "A path of material mastery...", 22: "The Master Builder's path..." },
-                destiny: { 5: "A destiny of freedom...", 9: "A destiny of humanitarianism..." },
-                soulUrge: { 6: "An inner need for domestic harmony...", 1: "A deep desire for independence..." },
-                pinnacles: { 1: "A period to focus on independence and new beginnings...", 6: "A period where responsibility and family take center stage..." }
-                 // ... Many more numbers
+            numerologyCore: {
+                lifePath: {
+                    1: "Life Path 1: The Leader & Innovator. You are here to forge new paths, act independently, and develop self-reliance. Your journey is about discovering and asserting your unique identity and leadership potential.",
+                    2: "Life Path 2: The Peacemaker & Diplomat. Your path is defined by cooperation, harmony, and sensitivity. You are meant to bring people together, mediate conflicts, and cultivate patience and tact.",
+                    3: "Life Path 3: The Communicator & Creative. Your journey is about self-expression, joy, and inspiring others. You are naturally artistic, optimistic, and meant to bring light and creativity to the world.",
+                    4: "Life Path 4: The Builder & Organizer. Your purpose is to create stability, build solid foundations, and establish systems. You are practical, disciplined, and hardworking, with a focus on integrity.",
+                    5: "Life Path 5: The Adventurer & Free Spirit. Your path is about freedom, change, and adaptability. You are curious, versatile, and seek diverse experiences, often leading to a life of travel and exploration.",
+                    6: "Life Path 6: The Nurturer & Harmonizer. Your journey centers on responsibility, family, and service. You are compassionate, protective, and naturally drawn to healing and creating beauty in your environment.",
+                    7: "Life Path 7: The Seeker & Analyst. Your path is one of introspection, wisdom, and spiritual growth. You are deeply analytical, intuitive, and driven to uncover hidden truths and develop expertise.",
+                    8: "Life Path 8: The Achiever & Powerhouse. Your purpose involves mastering material abundance, power, and authority. You are ambitious, determined, and capable of significant achievement in business and leadership.",
+                    9: "Life Path 9: The Humanitarian & Compassionate Leader. Your journey is one of universal love, service to humanity, and creative expression. You are idealistic, benevolent, and inspire others through your wisdom.",
+                    11: "Life Path 11 (Master Illuminator): This master number signifies high intuition, inspiration, and a potential for spiritual leadership. You are here to inspire and uplift others, often through psychic or healing abilities. You may experience heightened nervous tension due to your sensitivity.",
+                    22: "Life Path 22 (Master Builder): The most powerful master number, indicating a capacity to turn grand dreams into tangible reality on a large scale. You are a 'master builder' capable of significant practical achievements benefiting humanity. This path demands immense discipline and vision.",
+                    33: "Life Path 33 (Master Healer/Teacher): A rare master number, signifying deep compassion, unconditional love, and the ability to heal and teach others through selfless service. Your path is one of spiritual leadership and profound emotional intelligence."
+                },
+                destiny: {
+                    // Similar detailed interpretations for Destiny/Expression number
+                    1: "Destiny 1: You are destined to lead...",
+                    5: "Destiny 5: Your destiny is tied to change...",
+                    // ...
+                },
+                soulUrge: {
+                    // Similar detailed interpretations for Soul Urge/Heart's Desire number
+                    6: "Soul Urge 6: Your inner desire is for harmony...",
+                    1: "Soul Urge 1: You deeply desire independence...",
+                    // ...
+                },
+                personality: {
+                    // Similar detailed interpretations for Personality number
+                    8: "Personality 8: Others perceive you as strong...",
+                    // ...
+                },
+                maturity: {
+                    // Similar detailed interpretations for Maturity number
+                    3: "Maturity 3: Your later life will focus on...",
+                    // ...
+                },
+                personalYear: {
+                    // Generic interpretations, as it's yearly cycle
+                    1: "Personal Year 1: A year of new beginnings...",
+                    5: "Personal Year 5: A year of change and freedom...",
+                    // ...
+                },
+                lifeCycle: {
+                    // General interpretations for life cycles
+                    "Formative": "Your Formative Period (birth to early 30s) is about establishing your foundation. For a Life Path 8, this might involve learning about power and integrity.",
+                    "Productive": "The Productive Period (mid-30s to early 50s) is where you fully apply your Life Path. For you, it's about significant achievement.",
+                    "Harvest": "The Harvest Period (late 50s onwards) is about sharing your wisdom and enjoying the fruits of your labor. You will share your mastery."
+                }
             }
         };
 
-        // --- CORE UI & HELPER FUNCTIONS --- //
-        function switchTab(tabName){ document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active')); document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active'); document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active')); document.getElementById(tabName).classList.add('active'); }
-        function showLoading(loaderId, resultsId){ document.getElementById(loaderId).style.display='block'; document.getElementById(resultsId).style.display='none'; document.getElementById('errorMessage').style.display='none'; }
-        function hideLoading(loaderId, resultsId){ document.getElementById(loaderId).style.display='none'; document.getElementById(resultsId).style.display='block'; }
-        function showError(message){ const e=document.getElementById('errorMessage'); e.textContent=message; e.style.display='block'; document.querySelectorAll('.loading').forEach(l=>l.style.display='none'); }
+        // --- Core UI & Helper Functions --- //
+        function switchTab(tabName) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.nav-tab[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+        }
 
-        // --- DETERMINISTIC ASTROLOGY "CALCULATION" --- //
-        function getZodiacSign(date) { const d=new Date(date); const day=d.getDate(); const m=d.getMonth()+1; if((m==3&&day>=21)||(m==4&&day<=19))return'Aries'; if((m==4&&day>=20)||(m==5&&day<=20))return'Taurus'; if((m==5&&day>=21)||(m==6&&day<=20))return'Gemini'; if((m==6&&day>=21)||(m==7&&day<=22))return'Cancer'; if((m==7&&day>=23)||(m==8&&day<=22))return'Leo'; if((m==8&&day>=23)||(m==9&&day<=22))return'Virgo'; if((m==9&&day>=23)||(m==10&&day<=22))return'Libra'; if((m==10&&day>=23)||(m==11&&day<=21))return'Scorpio'; if((m==11&&day>=22)||(m==12&&day<=21))return'Sagittarius'; return'Capricorn'; }
-        function getAscendant(time) { const hour = parseInt(time.split(':')[0]); if (hour >= 6 && hour < 8) return 'Taurus'; if (hour >= 8 && hour < 10) return 'Gemini'; if (hour >= 10 && hour < 12) return 'Cancer'; if (hour >= 12 && hour < 14) return 'Leo'; if (hour >= 14 && hour < 16) return 'Virgo'; if (hour >= 16 && hour < 18) return 'Libra'; return 'Aries'; }
+        function showLoading(loaderId, resultsId) {
+            document.getElementById(loaderId).style.display = 'block';
+            document.getElementById(resultsId).style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('reportStatus').textContent = ''; // Clear export status
+        }
+
+        function hideLoading(loaderId, resultsId) {
+            document.getElementById(loaderId).style.display = 'none';
+            document.getElementById(resultsId).style.display = 'block';
+        }
+
+        function showError(message) {
+            const e = document.getElementById('errorMessage');
+            e.textContent = message;
+            e.style.display = 'block';
+            document.querySelectorAll('.loading').forEach(l => l.style.display = 'none'); // Hide all loaders
+        }
+
+        // --- Deterministic Astrological & Numerological "Calculations" (Simulated) --- //
+
+        // Simple Zodiac Sign calculation based on month/day
+        function getZodiacSign(dateString) {
+            const date = new Date(dateString);
+            const day = date.getDate();
+            const month = date.getMonth() + 1; // getMonth() is 0-indexed
+
+            if ((month == 1 && day >= 20) || (month == 2 && day <= 18)) return "Aquarius";
+            if ((month == 2 && day >= 19) || (month == 3 && day <= 20)) return "Pisces";
+            if ((month == 3 && day >= 21) || (month == 4 && day <= 19)) return "Aries";
+            if ((month == 4 && day >= 20) || (month == 5 && day <= 20)) return "Taurus";
+            if ((month == 5 && day >= 21) || (month == 6 && day <= 20)) return "Gemini";
+            if ((month == 6 && day >= 21) || (month == 7 && day <= 22)) return "Cancer";
+            if ((month == 7 && day >= 23) || (month == 8 && day <= 22)) return "Leo";
+            if ((month == 8 && day >= 23) || (month == 9 && day <= 22)) return "Virgo";
+            if ((month == 9 && day >= 23) || (month == 10 && day <= 22)) return "Libra";
+            if ((month == 10 && day >= 23) || (month == 11 && day <= 21)) return "Scorpio";
+            if ((month == 11 && day >= 22) || (month == 12 && day <= 21)) return "Sagittarius";
+            if ((month == 12 && day >= 22) || (month == 1 && day <= 19)) return "Capricorn";
+            return "Unknown"; // Should not happen with valid date
+        }
+
+        // Simplified Ascendant (Rising Sign) based on birth time.
+        // In reality, this requires location (lat/lon) and exact time of day/year.
+        function getAscendant(birthTime, birthDate) {
+            const hour = parseInt(birthTime.split(':')[0]);
+            const date = new Date(birthDate);
+            const month = date.getMonth(); // 0-11
+            
+            // This is a highly simplified logic for demo purposes.
+            // Real ascendant calculation needs complex astronomical algorithms.
+            if (hour >= 4 && hour < 6) return "Pisces";
+            if (hour >= 6 && hour < 8) return "Aries";
+            if (hour >= 8 && hour < 10) return "Taurus";
+            if (hour >= 10 && hour < 12) return "Gemini";
+            if (hour >= 12 && hour < 14) return "Cancer";
+            if (hour >= 14 && hour < 16) return "Leo";
+            if (hour >= 16 && hour < 18) return "Virgo";
+            if (hour >= 18 && hour < 20) return "Libra";
+            if (hour >= 20 && hour < 22) return "Scorpio";
+            if (hour >= 22 && hour < 0) return "Sagittarius"; // 10 PM to Midnight
+            if (hour >= 0 && hour < 2) return "Capricorn";
+            if (hour >= 2 && hour < 4) return "Aquarius";
+            return "Aries"; // Default or fallback
+        }
+
+        // Simplified Planet in House placement (for demo)
+        // In reality, depends on complex house system calculation and time.
+        function getPlanetInHouse(planet, birthTime) {
+            const hour = parseInt(birthTime.split(':')[0]);
+            const houseIndex = Math.floor(hour / 2) % 12 + 1; // Crude mapping to houses
+            return `House ${houseIndex}`;
+        }
+        
+        // Simulating Aspects (for demo, just pick a few representative ones)
+        function getMajorAspects() {
+            return [
+                { name: "Sun square Saturn", key: "Sun_Square_Saturn" },
+                { name: "Venus trine Jupiter", key: "Venus_Trine_Jupiter" },
+                { name: "Mars conjunction Pluto", key: "Mars_Conjunction_Pluto" },
+            ];
+        }
+
+        // Numerology calculation functions
+        function reduceNumber(n) {
+            if (n === 11 || n === 22 || n === 33) return n; // Master Numbers
+            let sum = n.toString().split('').reduce((acc, digit) => acc + parseInt(digit), 0);
+            return sum > 9 ? reduceNumber(sum) : sum;
+        }
+
+        function calculateNameNumber(name, type) {
+            const vowels = 'aeiou';
+            let sum = 0;
+            const charValues = {
+                'a':1, 'b':2, 'c':3, 'd':4, 'e':5, 'f':6, 'g':7, 'h':8, 'i':9,
+                'j':1, 'k':2, 'l':3, 'm':4, 'n':5, 'o':6, 'p':7, 'q':8, 'r':9,
+                's':1, 't':2, 'u':3, 'v':4, 'w':5, 'x':6, 'y':7, 'z':8
+            };
+
+            for (let char of name.toLowerCase().replace(/[^a-z]/g, '')) { // Sanitize name
+                if (charValues[char]) {
+                    if (type === 'vowels' && vowels.includes(char)) {
+                        sum += charValues[char];
+                    } else if (type === 'consonants' && !vowels.includes(char)) {
+                        sum += charValues[char];
+                    } else if (type === 'all') {
+                        sum += charValues[char];
+                    }
+                }
+            }
+            return reduceNumber(sum);
+        }
 
         function generateAstrologyReport() {
             const name = document.getElementById('fullName').value;
             const birthDate = document.getElementById('birthDate').value;
             const birthTime = document.getElementById('birthTime').value;
-            if (!name || !birthDate || !birthTime) { showError("Please complete all input fields for an accurate analysis."); return; }
-            
+            const birthLocation = document.getElementById('birthLocation').value;
+            const timezoneOffset = document.getElementById('timezoneOffset').value;
+
+            if (!name || !birthDate || !birthTime || !birthLocation || !timezoneOffset) {
+                showError("Please complete all input fields for a comprehensive astrological analysis.");
+                return;
+            }
+
             showLoading('astrologyLoading', 'astrologyResults');
 
             setTimeout(() => {
                 const sunSign = getZodiacSign(birthDate);
-                const ascendant = getAscendant(birthTime);
-                const moonSign = getZodiacSign(new Date(new Date(birthDate).getTime() + 15 * 86400000)); // Simulate a different moon sign
+                const moonSign = getZodiacSign(new Date(new Date(birthDate).getTime() + 12 * 86400000)); // Simulate Moon moving
+                const ascendant = getAscendant(birthTime, birthDate);
+
+                const planets = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'];
+                const planetPlacements = planets.map(p => ({
+                    planet: p,
+                    house: getPlanetInHouse(p, birthTime), // Simplified
+                    sign: getZodiacSign(new Date(new Date(birthDate).getTime() + (planets.indexOf(p) * 5) * 86400000)) // Simulate different signs
+                }));
+                const majorAspects = getMajorAspects();
 
                 const report = {
                     type: "Astrology",
-                    person: { name, birthDate, birthTime },
-                    title: `Astrological Profile for ${name}`,
-                    summary: `This report details the core astrological energies influencing your life, based on your birth data. It provides insights into your identity, emotional nature, and key life themes.`,
-                    data: [
-                        { title: "Sun Sign", value: sunSign, interpretation: ANALYSIS_CONTENT.zodiac[sunSign] },
-                        { title: "Moon Sign", value: moonSign, interpretation: ANALYSIS_CONTENT.zodiac[moonSign] },
-                        { title: "Ascendant", value: ascendant, interpretation: ANALYSIS_CONTENT.zodiac[ascendant] },
-                        { title: "Major Aspect", value: "Sun square Saturn", interpretation: ANALYSIS_CONTENT.aspects["Sun square Saturn"] },
-                        { title: "Major Aspect", value: "Venus trine Jupiter", interpretation: ANALYSIS_CONTENT.aspects["Venus trine Jupiter"] },
+                    person: { name, birthDate, birthTime, birthLocation, timezoneOffset },
+                    title: `Astrological Birth Chart Analysis for ${name}`,
+                    summary: `This comprehensive report provides an in-depth analysis of your unique astrological blueprint, revealing insights into your core personality, emotional landscape, communication style, relationships, career potential, and key life lessons.`,
+                    sections: [
+                        {
+                            heading: "I. The Core Identity: Sun, Moon & Ascendant",
+                            content: [
+                                { type: "basic", title: `Your Sun in ${sunSign}`, text: ANALYSIS_CONTENT.zodiacSigns[sunSign].summary + " " + ANALYSIS_CONTENT.zodiacSigns[sunSign].strengths },
+                                { type: "basic", title: `Your Moon in ${moonSign}`, text: ANALYSIS_CONTENT.zodiacSigns[moonSign].summary + " " + ANALYSIS_CONTENT.zodiacSigns[moonSign].strengths },
+                                { type: "basic", title: `Your ${ascendant} Ascendant`, text: ANALYSIS_CONTENT.zodiacSigns[ascendant].summary + " " + ANALYSIS_CONTENT.zodiacSigns[ascendant].strengths },
+                            ]
+                        },
+                        {
+                            heading: "II. Planetary Placements: Driving Forces in Your Life",
+                            content: planetPlacements.map(p => ({
+                                type: "basic",
+                                title: `${p.planet} in ${p.sign} in ${p.house}`,
+                                text: ANALYSIS_CONTENT.planetsInHouses[p.planet]?.[p.house] || `${p.planet} in ${p.house}: This placement influences your approach to life's experiences through the lens of ${p.house}.`
+                            }))
+                        },
+                        {
+                            heading: "III. Key Astrological Aspects: Your Dynamic Inner World",
+                            content: majorAspects.map(a => ({
+                                type: "basic",
+                                title: a.name,
+                                text: ANALYSIS_CONTENT.aspects[a.key] || `Aspect interpretation for ${a.name} is not available.`
+                            }))
+                        },
+                        {
+                            heading: "IV. Synthesis: Understanding Your Unique Cosmic Signature",
+                            content: [
+                                { type: "basic", title: "Elemental Balance & Modalities", text: `With a balance leaning towards ${ANALYSIS_CONTENT.zodiacSigns[sunSign].element} elements, you possess ${ANALYSIS_CONTENT.zodiacSigns[sunSign].element === 'Fire' ? 'passion' : 'stability'}. Your ${ANALYSIS_CONTENT.zodiacSigns[sunSign].modality} modality indicates a dynamic and adaptable approach to life.` },
+                                { type: "basic", title: "Overall Life Theme", text: `Your chart suggests a life journey focused on ${sunSign === 'Leo' ? 'self-expression and leadership' : 'personal growth and understanding'}. You are equipped with the inner resources to navigate challenges and embrace your destiny.` }
+                            ]
+                        }
                     ]
                 };
                 generatedReportData.astrology = report;
                 displayReportResults('astrologyResults', report);
                 hideLoading('astrologyLoading', 'astrologyResults');
-            }, 1500);
+            }, 2000);
         }
 
-        // --- ACCURATE NUMEROLOGY CALCULATION --- //
-        function reduceNumber(n) { if (n === 11 || n === 22 || n === 33) return n; let s = n.toString(); while (s.length > 1) { s = s.split('').reduce((a, b) => a + parseInt(b), 0).toString(); if (s === '11' || s === '22' || s === '33') return parseInt(s); } return parseInt(s); }
-        function calculateNameNumber(name, type) { const vowels = 'aeiou'; const charValues = { 'a':1, 'j':1, 's':1, 'b':2, 'k':2, 't':2, 'c':3, 'l':3, 'u':3, 'd':4, 'm':4, 'v':4, 'e':5, 'n':5, 'w':5, 'f':6, 'o':6, 'x':6, 'g':7, 'p':7, 'y':7, 'h':8, 'q':8, 'z':8, 'i':9, 'r':9 }; let sum = 0; for (let char of name.toLowerCase()) { if (charValues[char]) { if (type === 'vowels' && vowels.includes(char)) sum += charValues[char]; else if (type === 'consonants' && !vowels.includes(char)) sum += charValues[char]; else if (type === 'all') sum += charValues[char]; } } return reduceNumber(sum); }
-
         function generateNumerologyReport() {
-            const name = document.getElementById('numFullName').value;
+            const birthFullName = document.getElementById('numFullName').value;
+            const currentFullName = document.getElementById('numCurrentName').value;
             const birthDateStr = document.getElementById('numBirthDate').value;
-            if (!name || !birthDateStr) { showError("Please provide full birth name and birth date."); return; }
-            
+
+            if (!birthFullName || !birthDateStr) {
+                showError("Please provide your full birth name and birth date for a numerology analysis.");
+                return;
+            }
+
             showLoading('numerologyLoading', 'numerologyResults');
-            
+
             setTimeout(() => {
                 const birthDate = new Date(birthDateStr);
                 const day = birthDate.getDate(), month = birthDate.getMonth() + 1, year = birthDate.getFullYear();
-                
+
+                const lifePath = reduceNumber(reduceNumber(month) + reduceNumber(day) + reduceNumber(year));
+                const destiny = calculateNameNumber(birthFullName, 'all');
+                const soulUrge = calculateNameNumber(birthFullName, 'vowels');
+                const personality = calculateNameNumber(birthFullName, 'consonants');
+                const maturity = reduceNumber(lifePath + destiny);
+                const currentNamePersonality = currentFullName ? calculateNameNumber(currentFullName, 'all') : 'N/A';
+                const personalYear = reduceNumber(new Date().getFullYear() + month + day); // Current year's personal year
+
                 const report = {
                     type: "Numerology",
-                    person: { name, birthDate: birthDateStr },
-                    title: `Numerology Profile for ${name}`,
-                    summary: `This report analyzes the vibrational meaning behind the numbers in your name and birth date, revealing your life path, destiny, and personal timeline.`,
-                    data: [
-                        { title: "Life Path Number", value: reduceNumber(day + month + year), interpretation: ANALYSIS_CONTENT.numerology.lifePath[reduceNumber(day + month + year)] },
-                        { title: "Destiny Number", value: calculateNameNumber(name, 'all'), interpretation: ANALYSIS_CONTENT.numerology.destiny[calculateNameNumber(name, 'all')] },
-                        { title: "Soul Urge Number", value: calculateNameNumber(name, 'vowels'), interpretation: ANALYSIS_CONTENT.numerology.soulUrge[calculateNameNumber(name, 'vowels')] },
-                        { title: "First Pinnacle (Ages 0-35)", value: reduceNumber(day+month), interpretation: ANALYSIS_CONTENT.numerology.pinnacles[reduceNumber(day+month)] },
-                        { title: "Second Pinnacle (Ages 36-44)", value: reduceNumber(day+year), interpretation: ANALYSIS_CONTENT.numerology.pinnacles[reduceNumber(day+year)] },
+                    person: { name: birthFullName, birthDate: birthDateStr, currentName: currentFullName },
+                    title: `Numerological Profile for ${birthFullName}`,
+                    summary: `This comprehensive numerology report delves into the vibrational essence of your name and birth date, revealing your life's purpose, inner desires, outward personality, and cyclic influences.`,
+                    sections: [
+                        {
+                            heading: "I. Core Numbers: Your Fundamental Blueprint",
+                            content: [
+                                { type: "basic", title: `Life Path Number: ${lifePath}`, text: ANALYSIS_CONTENT.numerologyCore.lifePath[lifePath] },
+                                { type: "basic", title: `Destiny (Expression) Number: ${destiny}`, text: ANALYSIS_CONTENT.numerologyCore.destiny[destiny] || "Interpretation for this number is not available." },
+                                { type: "basic", title: `Soul Urge (Heart's Desire) Number: ${soulUrge}`, text: ANALYSIS_CONTENT.numerologyCore.soulUrge[soulUrge] || "Interpretation for this number is not available." },
+                                { type: "basic", title: `Personality Number: ${personality}`, text: ANALYSIS_CONTENT.numerologyCore.personality[personality] || "Interpretation for this number is not available." },
+                                { type: "basic", title: `Maturity Number: ${maturity}`, text: ANALYSIS_CONTENT.numerologyCore.maturity[maturity] || "Interpretation for this number is not available." }
+                            ]
+                        },
+                        {
+                            heading: "II. Cyclic Influences: Your Journey Through Time",
+                            content: [
+                                { type: "basic", title: `Current Personal Year: ${personalYear}`, text: ANALYSIS_CONTENT.numerologyCore.personalYear[personalYear] || "Interpretation for this number is not available." },
+                                { type: "basic", title: "Life Cycle: Formative Period", text: ANALYSIS_CONTENT.numerologyCore.lifeCycle["Formative"] },
+                                { type: "basic", title: "Life Cycle: Productive Period", text: ANALYSIS_CONTENT.numerologyCore.lifeCycle["Productive"] },
+                                { type: "basic", title: "Life Cycle: Harvest Period", text: ANALYSIS_CONTENT.numerologyCore.lifeCycle["Harvest"] }
+                            ]
+                        },
+                        {
+                            heading: "III. Synthesis: Harmonizing Your Numbers",
+                            content: [
+                                { type: "basic", title: "Overall Theme", text: `Your Life Path of ${lifePath} combined with your Destiny Number of ${destiny} indicates a powerful alignment towards ${lifePath === 8 ? 'mastery and achievement' : 'harmony and cooperation'}. This combination suggests a life path of significant influence and impact, where your inner desires for ${soulUrge} are expressed through your outward personality of ${personality}.` },
+                                { type: "basic", title: "Impact of Current Name", text: currentFullName ? `Your current name, ${currentFullName}, gives a Personality Number of ${currentNamePersonality}. This subtly influences how others perceive you in daily interactions, potentially adding a layer of ${currentNamePersonality === 5 ? 'adaptability' : 'stability'} to your inherent traits.` : `No current name provided for additional analysis.` }
+                            ]
+                        }
                     ]
                 };
                 generatedReportData.numerology = report;
                 displayReportResults('numerologyResults', report);
                 hideLoading('numerologyLoading', 'numerologyResults');
-            }, 1500);
+            }, 2000);
         }
 
-        // --- DYNAMIC UI DISPLAY --- //
+        // --- Dynamic In-App Report Display --- //
         function displayReportResults(containerId, report) {
             const container = document.getElementById(containerId);
-            let html = `<h2>${report.title}</h2><p class="result-summary">${report.summary}</p><div class="results-grid">`;
-            report.data.forEach(item => {
-                html += `<div class="result-card"><h3>${item.title}: ${item.value}</h3><p>${item.interpretation}</p></div>`;
+            let html = `<h2>${report.title}</h2><p class="report-summary">${report.summary}</p>`;
+            html += `<div class="report-section-container">`;
+
+            report.sections.forEach(section => {
+                html += `<div class="report-section-card"><h3>${section.heading}</h3>`;
+                section.content.forEach(item => {
+                    if (item.type === "basic") {
+                        html += `<h4>${item.title}</h4><p>${item.text}</p>`;
+                    } else if (item.type === "list") {
+                        html += `<h4>${item.title}</h4><ul>`;
+                        item.list.forEach(li => html += `<li><strong>${li.key}:</strong> ${li.value}</li>`);
+                        html += `</ul>`;
+                    }
+                });
+                html += `</div>`;
             });
             html += `</div>`;
             container.innerHTML = html;
         }
 
-        // --- PROFESSIONAL EXPORT FUNCTIONS (ENHANCED) --- //
-        async function svgToBase64(svgElement) { const s=new XMLSerializer().serializeToString(svgElement); return new Promise(r=>{const d=new FileReader();d.onloadend=()=>r(d.result);d.readAsDataURL(new Blob([s],{type:"image/svg+xml;charset=utf-8"}))}); }
-        
+        // --- PROFESSIONAL EXPORT FUNCTIONS (HIGHLY ENHANCED) --- //
+
+        // Helper to convert SVG to Base64 for PDF/DOCX embedding
+        async function svgToBase64(svgElement) {
+            const serializer = new XMLSerializer();
+            const svgString = serializer.serializeToString(svgElement);
+            return new Promise(resolve => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(new Blob([svgString], { type: "image/svg+xml;charset=utf-8" }));
+            });
+        }
+
         async function exportPDF() {
-            if (!generatedReportData.astrology && !generatedReportData.numerology) { showError("Please generate at least one report first."); return; }
+            if (!generatedReportData.astrology && !generatedReportData.numerology) {
+                showError("Please generate at least one report before exporting.");
+                return;
+            }
+            document.getElementById('reportStatus').textContent = "Generating PDF...";
+
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'pt', 'a4');
             const logoBase64 = await svgToBase64(document.querySelector("#logo-container svg"));
-            const pageHeight = doc.internal.pageSize.height, pageWidth = doc.internal.pageSize.width, margin = 40;
-            let cursorY = 0;
-
-            const addHeader = (title) => { doc.addImage(logoBase64, 'SVG', margin, margin - 15, 40, 40); doc.setFont('helvetica', 'bold'); doc.setFontSize(20); doc.text("Cosmic Insights AI", margin + 50, margin + 15); doc.setFont('helvetica', 'normal'); doc.setFontSize(12); doc.text(title, pageWidth - margin, margin + 15, { align: 'right' }); doc.setDrawColor("#ffb347"); doc.line(margin, margin + 35, pageWidth - margin, margin + 35); cursorY = margin + 60; };
-            const addFooter = (page) => { doc.setFontSize(8).text(`Generated on ${new Date().toLocaleDateString()}`, margin, pageHeight - 20); doc.text(`Page ${page}`, pageWidth - margin, pageHeight - 20, { align: 'right' }); };
             
-            const printReport = (report) => {
-                addHeader(report.title);
-                doc.setFont('helvetica', 'italic').setFontSize(10).text(doc.splitTextToSize(report.summary, pageWidth-margin*2), margin, cursorY);
-                cursorY += 40;
-                report.data.forEach(item => {
-                    const textLines = doc.splitTextToSize(item.interpretation, pageWidth-margin*2 - 150);
-                    const textHeight = textLines.length * doc.getFontSize();
-                    if(cursorY + textHeight > pageHeight - 40) { addFooter(doc.internal.getNumberOfPages()); doc.addPage(); addHeader(report.title); }
-                    
-                    doc.setFont('helvetica', 'bold').setFontSize(12).text(item.title, margin, cursorY);
-                    doc.setFont('helvetica', 'normal').setFontSize(11).text(item.value.toString(), margin + 140, cursorY, { align: 'left' });
-                    doc.setFont('helvetica', 'normal').setFontSize(10).text(textLines, margin, cursorY + 15);
-                    cursorY += textHeight + 30;
-                });
-                addFooter(doc.internal.getNumberOfPages());
+            const pageHeight = doc.internal.pageSize.height;
+            const pageWidth = doc.internal.pageSize.width;
+            const margin = 40;
+            let cursorY = 0;
+            let currentPage = 1;
+
+            const FONT_NORMAL = 'helvetica';
+            const FONT_BOLD = 'helvetica'; // jsPDF has a 'bold' style for helvetica
+            const COLOR_PRIMARY = '#ffd700'; // Gold
+            const COLOR_SECONDARY = '#ffb347'; // Orange-gold
+            const COLOR_TEXT = '#333333'; // Dark text for readability on white background
+
+            // Add Custom Fonts (Optional, requires loading .ttf files)
+            // doc.addFont('Roboto-Regular.ttf', 'Roboto', 'normal');
+            // doc.addFont('Roboto-Bold.ttf', 'Roboto', 'bold');
+
+            const addTitlePage = (reportTitle, personName) => {
+                doc.addPage(); // Start with a new page for title page
+                doc.setFillColor(30, 60, 114); // Dark blue background for title page
+                doc.rect(0, 0, pageWidth, pageHeight, 'F'); // Fill entire page
+
+                // Logo
+                doc.addImage(logoBase64, 'SVG', (pageWidth / 2) - 50, 80, 100, 100);
+
+                // Main Title
+                doc.setFont(FONT_BOLD).setFontSize(36).setTextColor(255, 215, 0); // Gold
+                doc.text("AI Cosmic Analysis Report", pageWidth / 2, 220, { align: 'center' });
+
+                // Report Type
+                doc.setFont(FONT_NORMAL).setFontSize(24).setTextColor(255, 255, 255); // White
+                doc.text(reportTitle, pageWidth / 2, 270, { align: 'center' });
+
+                // Subtitle / User Name
+                doc.setFont(FONT_NORMAL).setFontSize(18).setTextColor(255, 255, 255);
+                doc.text(`For: ${personName}`, pageWidth / 2, 350, { align: 'center' });
+
+                // Date
+                doc.setFont(FONT_NORMAL).setFontSize(14).setTextColor(200, 200, 200);
+                doc.text(`Generated on: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`, pageWidth / 2, 400, { align: 'center' });
+
+                cursorY = pageHeight; // Ensure next content starts on new page
+            };
+
+            const addHeader = (currentReportTitle) => {
+                doc.setDrawColor(COLOR_SECONDARY);
+                doc.line(margin, margin + 35, pageWidth - margin, margin + 35); // Horizontal line
+                
+                doc.addImage(logoBase64, 'SVG', margin, margin - 15, 30, 30);
+                doc.setFont(FONT_BOLD).setFontSize(14).setTextColor(COLOR_PRIMARY);
+                doc.text("Cosmic Insights AI", margin + 40, margin + 5);
+
+                doc.setFont(FONT_NORMAL).setFontSize(10).setTextColor(COLOR_TEXT);
+                doc.text(currentReportTitle, pageWidth - margin, margin + 5, { align: 'right' });
+                cursorY = margin + 55;
+            };
+
+            const addFooter = () => {
+                doc.setFontSize(8).setTextColor(COLOR_TEXT);
+                doc.text(`Generated on: ${new Date().toLocaleDateString()}`, margin, pageHeight - 20);
+                doc.text(`Page ${doc.internal.getNumberOfPages()}`, pageWidth - margin, pageHeight - 20, { align: 'right' });
             };
             
-            if (generatedReportData.astrology) printReport(generatedReportData.astrology);
-            if (generatedReportData.numerology) { if (generatedReportData.astrology) doc.addPage(); printReport(generatedReportData.numerology); }
+            const addNewPage = (currentReportTitle) => {
+                addFooter();
+                doc.addPage();
+                currentPage++;
+                addHeader(currentReportTitle);
+            };
 
+            const printSection = (sectionHeading, contentItems, currentReportTitle) => {
+                doc.setFont(FONT_BOLD).setFontSize(18).setTextColor(COLOR_SECONDARY);
+                let headingLines = doc.splitTextToSize(sectionHeading, pageWidth - margin * 2);
+                let headingHeight = headingLines.length * 18 * 1.2 / 12; // Estimate line height
+                
+                if (cursorY + headingHeight + 20 > pageHeight - margin) { // Check if heading fits
+                    addNewPage(currentReportTitle);
+                }
+                doc.text(headingLines, margin, cursorY);
+                cursorY += headingHeight + 10;
+                
+                contentItems.forEach(item => {
+                    let titleLines = doc.splitTextToSize(item.title, pageWidth - margin * 2);
+                    let textLines = doc.splitTextToSize(item.text, pageWidth - margin * 2);
+                    let itemHeight = (titleLines.length * 14 * 1.2 / 12) + (textLines.length * 10 * 1.2 / 12) + 15; // Estimate item height
+
+                    if (cursorY + itemHeight > pageHeight - margin) { // Check if item fits
+                        addNewPage(currentReportTitle);
+                    }
+
+                    doc.setFont(FONT_BOLD).setFontSize(12).setTextColor(COLOR_PRIMARY);
+                    doc.text(titleLines, margin, cursorY);
+                    cursorY += titleLines.length * 12 * 1.2 / 12; // Update Y for title
+
+                    doc.setFont(FONT_NORMAL).setFontSize(10).setTextColor(COLOR_TEXT);
+                    doc.text(textLines, margin, cursorY);
+                    cursorY += textLines.length * 10 * 1.2 / 12; // Update Y for text
+                    cursorY += 10; // Padding between items
+                });
+                cursorY += 20; // Padding after section
+            };
+
+            if (generatedReportData.astrology) {
+                const astro = generatedReportData.astrology;
+                addTitlePage("Your Astrological Profile", astro.person.name);
+                addNewPage(astro.title); // First content page
+                
+                doc.setFont(FONT_NORMAL).setFontSize(10).setTextColor(COLOR_TEXT);
+                let summaryLines = doc.splitTextToSize(astro.summary, pageWidth - margin * 2);
+                doc.text(summaryLines, margin, cursorY);
+                cursorY += summaryLines.length * 10 * 1.2 / 12 + 20;
+
+                astro.sections.forEach(section => {
+                    printSection(section.heading, section.content, astro.title);
+                });
+            }
+
+            if (generatedReportData.numerology) {
+                const num = generatedReportData.numerology;
+                if (generatedReportData.astrology) doc.addPage(); // New page if previous report exists
+                addTitlePage("Your Numerological Profile", num.person.name);
+                addNewPage(num.title); // First content page for numerology
+
+                doc.setFont(FONT_NORMAL).setFontSize(10).setTextColor(COLOR_TEXT);
+                let summaryLines = doc.splitTextToSize(num.summary, pageWidth - margin * 2);
+                doc.text(summaryLines, margin, cursorY);
+                cursorY += summaryLines.length * 10 * 1.2 / 12 + 20;
+
+                num.sections.forEach(section => {
+                    printSection(section.heading, section.content, num.title);
+                });
+            }
+            
+            // Final footer for the last page
+            addFooter(); 
             doc.save('AI-Cosmic-Analysis-Report.pdf');
+            document.getElementById('reportStatus').textContent = "PDF successfully exported!";
         }
 
         async function exportDOCX() {
-            if (!generatedReportData.astrology && !generatedReportData.numerology) { showError("Please generate at least one report first."); return; }
-            const logoBuffer = await (await fetch(await svgToBase64(document.querySelector("#logo-container svg")))).arrayBuffer();
+            if (!generatedReportData.astrology && !generatedReportData.numerology) {
+                showError("Please generate at least one report before exporting.");
+                return;
+            }
+            document.getElementById('reportStatus').textContent = "Generating DOCX...";
 
-            const createReportSection = (report) => {
-                const children = [ new docx.Paragraph({ text: report.summary, italic: true, spacing: { after: 240 } }) ];
-                report.data.forEach(item => {
+            const logoBase64 = await svgToBase64(document.querySelector("#logo-container svg"));
+            const logoBuffer = await (await fetch(logoBase64)).arrayBuffer();
+
+            const createReportDocxContent = (report) => {
+                const children = [
+                    new docx.Paragraph({
+                        children: [
+                            new docx.TextRun({
+                                text: report.title,
+                                bold: true,
+                                size: 48, // ~24pt
+                                color: "2E5298", // Dark blue from gradient
+                            }),
+                        ],
+                        heading: docx.HeadingLevel.HEADING_1,
+                        alignment: docx.AlignmentType.CENTER,
+                        spacing: { before: 200, after: 300 } // Spacing before/after title
+                    }),
+                    new docx.Paragraph({
+                        children: [new docx.TextRun({ text: report.summary, italic: true, size: 22 })], // ~11pt
+                        spacing: { after: 360 } // Spacing after summary
+                    })
+                ];
+
+                report.sections.forEach(section => {
                     children.push(
-                        new docx.Paragraph({ heading: docx.HeadingLevel.HEADING_2, children: [ new docx.TextRun(`${item.title}: ${item.value}`) ] }),
-                        new docx.Paragraph({ children: [ new docx.TextRun(item.interpretation) ], spacing: { after: 200 } })
+                        new docx.Paragraph({
+                            children: [new docx.TextRun({ text: section.heading, bold: true, size: 32, color: "FFB347" })], // ~16pt, Orange-gold
+                            heading: docx.HeadingLevel.HEADING_2,
+                            spacing: { before: 480, after: 180 } // Spacing for H2
+                        })
                     );
+                    section.content.forEach(item => {
+                        children.push(
+                            new docx.Paragraph({
+                                children: [new docx.TextRun({ text: item.title, bold: true, size: 24, color: "FFD700" })], // ~12pt, Gold
+                                heading: docx.HeadingLevel.HEADING_3,
+                                spacing: { after: 100 }
+                            }),
+                            new docx.Paragraph({
+                                children: [new docx.TextRun({ text: item.text, size: 22 })], // ~11pt
+                                spacing: { after: 200 }
+                            })
+                        );
+                    });
                 });
                 return children;
             };
 
-            const sections = [];
-            if(generatedReportData.astrology) {
-                sections.push({
+            let allSections = [];
+
+            // Add title page
+            const titlePageContent = [];
+            titlePageContent.push(new docx.Paragraph({
+                children: [
+                    new docx.ImageRun({
+                        data: logoBuffer,
+                        transformation: { width: 150, height: 150 },
+                    }),
+                ],
+                alignment: docx.AlignmentType.CENTER,
+                spacing: { before: 2000, after: 500 } // Center vertically
+            }));
+            titlePageContent.push(new docx.Paragraph({
+                children: [
+                    new docx.TextRun({ text: "AI Cosmic Analysis Report", size: 72, bold: true, color: "FFD700" }),
+                ],
+                alignment: docx.AlignmentType.CENTER,
+                spacing: { after: 200 }
+            }));
+             titlePageContent.push(new docx.Paragraph({
+                children: [
+                    new docx.TextRun({ text: "Personalized Insights into Your Astrological and Numerological Blueprint", size: 36, color: "FFFFFF" }),
+                ],
+                alignment: docx.AlignmentType.CENTER,
+                spacing: { after: 800 }
+            }));
+            titlePageContent.push(new docx.Paragraph({
+                children: [
+                    new docx.TextRun({ text: `Generated for: ${generatedReportData.astrology?.person?.name || generatedReportData.numerology?.person?.name || 'User'}`, size: 28, color: "E0E0E0" }),
+                ],
+                alignment: docx.AlignmentType.CENTER,
+            }));
+            titlePageContent.push(new docx.Paragraph({
+                children: [
+                    new docx.TextRun({ text: `Date: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`, size: 24, color: "E0E0E0" }),
+                ],
+                alignment: docx.AlignmentType.CENTER,
+            }));
+
+            allSections.push({
+                properties: {
+                    page: {
+                        pageNumbers: {
+                            start: 1,
+                            formatType: docx.PageNumberFormat.DECIMAL,
+                        },
+                    },
+                },
+                children: titlePageContent,
+            });
+
+
+            if (generatedReportData.astrology) {
+                allSections.push(new docx.Section({
                     properties: { title: "Astrology Profile" },
-                    headers: { default: new docx.Header({ children: [new docx.Paragraph({ children: [ new docx.ImageRun({ data: logoBuffer, transformation: { width: 40, height: 40 } }), new docx.TextRun({ text: `\t${generatedReportData.astrology.title}`, bold: true })] })] }) },
-                    footers: { default: new docx.Footer({ children: [new docx.Paragraph({ alignment: docx.AlignmentType.CENTER, children: [new docx.TextRun("Page "), new docx.PageNumber()] })] })},
-                    children: createReportSection(generatedReportData.astrology),
-                });
+                    headers: {
+                        default: new docx.Header({
+                            children: [new docx.Paragraph({
+                                children: [
+                                    new docx.ImageRun({ data: logoBuffer, transformation: { width: 30, height: 30 } }),
+                                    new docx.TextRun({ text: `\t${generatedReportData.astrology.title}`, bold: true, size: 28, color: "2E5298" }),
+                                ]
+                            })]
+                        })
+                    },
+                    footers: {
+                        default: new docx.Footer({
+                            children: [new docx.Paragraph({
+                                alignment: docx.AlignmentType.RIGHT,
+                                children: [
+                                    new docx.TextRun({ text: `Generated on: ${new Date().toLocaleDateString()}` , size: 16 }),
+                                    new docx.TextRun({ text: " | Page " , size: 16 }),
+                                    new docx.PageNumber(),
+                                ],
+                            })],
+                        })
+                    },
+                    children: createReportDocxContent(generatedReportData.astrology),
+                }));
             }
-            if(generatedReportData.numerology) {
-                 sections.push({
+
+            if (generatedReportData.numerology) {
+                 allSections.push(new docx.Section({
                     properties: { title: "Numerology Profile" },
-                    headers: { default: new docx.Header({ children: [new docx.Paragraph({ children: [ new docx.ImageRun({ data: logoBuffer, transformation: { width: 40, height: 40 } }), new docx.TextRun({ text: `\t${generatedReportData.numerology.title}`, bold: true })] })] }) },
-                    footers: { default: new docx.Footer({ children: [new docx.Paragraph({ alignment: docx.AlignmentType.CENTER, children: [new docx.TextRun("Page "), new docx.PageNumber()] })] })},
-                    children: createReportSection(generatedReportData.numerology),
-                });
+                    headers: {
+                        default: new docx.Header({
+                            children: [new docx.Paragraph({
+                                children: [
+                                    new docx.ImageRun({ data: logoBuffer, transformation: { width: 30, height: 30 } }),
+                                    new docx.TextRun({ text: `\t${generatedReportData.numerology.title}`, bold: true, size: 28, color: "2E5298" }),
+                                ]
+                            })]
+                        })
+                    },
+                    footers: {
+                        default: new docx.Footer({
+                            children: [new docx.Paragraph({
+                                alignment: docx.AlignmentType.RIGHT,
+                                children: [
+                                    new docx.TextRun({ text: `Generated on: ${new Date().toLocaleDateString()}` , size: 16 }),
+                                    new docx.TextRun({ text: " | Page " , size: 16 }),
+                                    new docx.PageNumber(),
+                                ],
+                            })],
+                        })
+                    },
+                    children: createReportDocxContent(generatedReportData.numerology),
+                }));
             }
             
-            const doc = new docx.Document({ sections });
+            const doc = new docx.Document({ sections: allSections });
 
             docx.Packer.toBlob(doc).then(blob => {
                 const url = URL.createObjectURL(blob);
-                const a = document.createElement("a"); a.href = url; a.download = "AI-Cosmic-Analysis-Report.docx";
-                a.click(); URL.revokeObjectURL(url);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "AI-Cosmic-Analysis-Report.docx";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                document.getElementById('reportStatus').textContent = "DOCX successfully exported!";
+            }).catch(e => {
+                showError("Error exporting DOCX: " + e.message);
+                document.getElementById('reportStatus').textContent = "DOCX export failed.";
             });
         }
     </script>
